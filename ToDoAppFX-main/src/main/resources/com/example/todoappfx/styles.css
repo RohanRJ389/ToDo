@@ -1,0 +1,69 @@
+
+/* styles.css */
+
+/* Set default font for the entire application */
+.root {
+    -fx-font-family: 'Arial', sans-serif;
+}
+
+/* Set background color for the entire application */
+.root {
+    -fx-background-color: #f4f4f4;
+}
+
+/* Set background color for the main window */
+.vbox {
+    -fx-background-color: #ffffff;
+}
+
+/* Set border and padding for the task items */
+.list-cell {
+    -fx-border-color: #d0d0d0;
+    -fx-border-width: 0 0 1 0; /* Bottom border only */
+    -fx-padding: 5 10 5 10;
+}
+
+/* Style the task title */
+.list-cell .label {
+    -fx-font-size: 14pt;
+    -fx-text-fill: #333333;
+}
+
+/* Style the task description and date */
+.list-cell .text {
+    -fx-font-size: 12pt;
+    -fx-text-fill: #666666;
+}
+
+/* Style the delete button */
+.delete-button {
+    -fx-background-color: #e74c3c; /* Red color for the delete button */
+    -fx-text-fill: #ffffff; /* White text color */
+    -fx-font-size: 12pt;
+}
+
+.delete-button:hover {
+    -fx-background-color: #c0392b; /* Darker red color on hover */
+}
+
+/* Style the checkbox */
+.checkbox {
+    -fx-text-fill: #3498db; /* Blue color for the checkbox */
+}
+
+/* Style the window title */
+.window .label {
+    -fx-font-size: 16pt;
+    -fx-text-fill: #333333;
+}
+
+/* Set background color for alert dialogs */
+.dialog-pane {
+    -fx-background-color: #ffffff;
+}
+
+/* Style the alert dialog content text */
+.dialog-pane .content {
+    -fx-font-size: 14pt;
+    -fx-text-fill: #333333;
+}

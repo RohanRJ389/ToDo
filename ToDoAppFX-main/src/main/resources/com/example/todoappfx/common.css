@@ -1,16 +1,14 @@
-.button_blue {
-    -fx-background-color: #0b70e8;
-    -fx-text-fill: #1e1919;
-    -fx-font-weight: bold;
-    -fx-border-radius: 20px;
+/* styles.css */
+
+.delete-button {
+    -fx-graphic: url("/com/example/todoappfx/trash-can-icon.png");
+    -fx-background-color: transparent;
+    -fx-background-size: contain;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-padding: 5 5 5 5;
 }
 
-.label {
-    -fx-font-weight:bold;
-    -fx-font-size: 20px; /* Remove the space between value and unit */
-}
-
-TextField.field {
-    -fx-border-color: #194679;
-    /*-fx-font-weight: bold;*/
+.delete-button:hover {
+    -fx-background-color: #f2f2f2; /* Change color on hover if desired */
 }
