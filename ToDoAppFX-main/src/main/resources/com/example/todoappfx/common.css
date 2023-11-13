@@ -1,0 +1,16 @@
+.button_blue {
+    -fx-background-color: #0b70e8;
+    -fx-text-fill: #1e1919;
+    -fx-font-weight: bold;
+    -fx-border-radius: 20px;
+}
+
+.label {
+    -fx-font-weight:bold;
+    -fx-font-size: 20px; /* Remove the space between value and unit */
+}
+
+TextField.field {
+    -fx-border-color: #194679;
+    /*-fx-font-weight: bold;*/
+}
