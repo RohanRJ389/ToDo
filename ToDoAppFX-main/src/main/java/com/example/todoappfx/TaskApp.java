@@ -9,10 +9,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.layout.HBox;
+
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -26,9 +29,9 @@ public class TaskApp extends Application {
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "helloworld";
 
-    private ObservableList<Task> taskList = FXCollections.observableArrayList();
-    private ListView<Task> listView = new ListView<>();
-    private TextArea taskDetailsTextArea = new TextArea();
+    private final ObservableList<Task> taskList = FXCollections.observableArrayList();
+    private final ListView<Task> listView = new ListView<>();
+//    private final TextArea taskDetailsTextArea = new TextArea();
 
     public static void main(String[] args) {
         launch(args);
@@ -40,11 +43,15 @@ public class TaskApp extends Application {
         primaryStage.setTitle("To-Do List App");
 
         listView.setItems(taskList);
-        listView.setCellFactory(param -> new ListCell<Task>() {
+        listView.setCellFactory(param -> new ListCell<>() {
             private final CheckBox checkBox = new CheckBox();
             private final Button deleteButton = new Button("Delete");
             private final Label titleLabel = new Label();
             private final Label descriptionLabel = new Label();
+
+
+
+
 
             @Override
             protected void updateItem(Task item, boolean empty) {
@@ -56,54 +63,66 @@ public class TaskApp extends Application {
                 } else {
                     checkBox.setSelected(item.isCompleted());
                     checkBox.setOnAction(event -> toggleTaskCompletion(item));
+                    checkBox.getStyleClass().add("checkbox");
 
-                    titleLabel.setText(item.getTitle());
-                    titleLabel.setStyle("-fx-font-size: 14pt;");
+                    Label titleLabel = new Label(item.getTitle());
+                    titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14pt;");
 
-                    descriptionLabel.setText(item.getDescription() + " - " + item.getDate());
+                    Label dateLabel = new Label(item.getDate().toString());
+                    dateLabel.setStyle("-fx-font-size: 14pt;");
+
+                    Label descriptionLabel = new Label(item.getDescription());
                     descriptionLabel.setStyle("-fx-font-size: 10pt;");
 
-                    // Set text fill color based on completion status
+                    HBox titleDateBox = new HBox(5, titleLabel, dateLabel);
+                    VBox taskDetailsVBox = new VBox(5, titleDateBox, descriptionLabel);
+
                     if (item.isCompleted()) {
-                        titleLabel.setStyle("-fx-text-fill: gray;");
-                        descriptionLabel.setStyle("-fx-text-fill: gray;");
+                        titleLabel.setStyle("-fx-text-fill: grey;");
+                        titleDateBox.setStyle("-fx-text-fill: grey;"); // Light grey for completed tasks
+                        descriptionLabel.setStyle("-fx-text-fill: grey;"); // Light grey for completed tasks
                     } else {
-                        titleLabel.setStyle("-fx-text-fill: black;");
-                        descriptionLabel.setStyle("-fx-text-fill: black;");
+                        titleDateBox.setStyle("-fx-text-fill: black;"); // Set default color for non-completed tasks
+                        descriptionLabel.setStyle("-fx-text-fill: black;"); // Set default color for non-completed tasks
                     }
 
-                    Button deleteButton = new Button();
-                    deleteButton.getStyleClass().add("delete-button");
+                    HBox.setHgrow(taskDetailsVBox, Priority.ALWAYS);
+                    HBox.setHgrow(deleteButton, Priority.NEVER);
+
+                    ImageView trashIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/example/todoappfx/trash-can-icon.png"))));
+                    trashIcon.setFitWidth(16);
+                    trashIcon.setFitHeight(16);
+
+                    deleteButton.setGraphic(trashIcon);
+                    deleteButton.getStyleClass().add("button-delete");
                     deleteButton.setOnAction(event -> promptDeleteConfirmation(item));
 
-                    // Assuming you have an image view for the trash can icon
-                    ImageView trashCanIcon = new ImageView(
-                            new Image(getClass().getResourceAsStream("/com/example/todoappfx/trash-can-icon.png")));
-                    trashCanIcon.setFitWidth(16); // Adjust the width of the image as needed
-                    trashCanIcon.setFitHeight(16); // Adjust the height of the image as needed
-
-                    deleteButton.setGraphic(trashCanIcon);
-
-                    HBox hbox = new HBox(10, checkBox, titleLabel, descriptionLabel, deleteButton);
+                    HBox hbox = new HBox(10, checkBox, taskDetailsVBox, deleteButton);
                     setGraphic(hbox);
                 }
             }
+
+
+
+
         });
 
 
-
-
-            Button addButton = new Button("Add New Task");
+        Button addButton = new Button("+");
+        addButton.getStyleClass().add("add-button");
+        Object taskDetailsTextArea = null;
+//        vBox.getChildren().addAll(listView, taskDetailsTextArea, addButton);
+        VBox.setMargin(addButton, new Insets(10)); // Set margin for the button
         addButton.setOnAction(e -> openAddTaskWindow());
 
         VBox vBox = new VBox(10);
         vBox.setPadding(new Insets(10, 10, 10, 10));
-        vBox.getChildren().addAll(listView, taskDetailsTextArea, addButton);
+        vBox.getChildren().addAll(listView, addButton);
 
         Scene scene = new Scene(vBox, 800, 500);
 
         // Add the CSS file to the scene
-        scene.getStylesheets().add(getClass().getResource("/com/example/todoappfx/styles.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/example/todoappfx/styles.css")).toExternalForm());
 
         primaryStage.setScene(scene);
 
@@ -169,6 +188,13 @@ public class TaskApp extends Application {
             e.printStackTrace();
         }
     }
+    private void updateCheckBoxStyle(CheckBox checkBox, boolean completed) {
+        if (completed) {
+            checkBox.getStyleClass().add("checkbox-checked");
+        } else {
+            checkBox.getStyleClass().remove("checkbox-checked");
+        }
+    }
     private void markTaskCompleted(Task task) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             String query = "UPDATE task_details SET completed = ? WHERE id = ?";
@@ -182,15 +208,7 @@ public class TaskApp extends Application {
             e.printStackTrace();
         }
     }
-//    private void displayTaskDetails(Task task) {
-//        StringBuilder details = new StringBuilder();
-//        details.append("Title: ").append(task.getTitle()).append("\n");
-//        details.append("Description: ").append(task.getDescription()).append("\n");
-//        details.append("Date: ").append(task.getDate()).append("\n");
-//        details.append("Completed: ").append(task.isCompleted());
-//
-//        taskDetailsTextArea.setText(details.toString());
-//    }
+
     private void toggleTaskCompletion(Task task) {
         task.setCompleted(!task.isCompleted());
         // Update the completion status in the database
@@ -261,10 +279,10 @@ public class TaskApp extends Application {
 
 
     private static class Task {
-        private int id;
-        private String title;
-        private String description;
-        private LocalDate date;
+        private final int id;
+        private final String title;
+        private final String description;
+        private final LocalDate date;
         private boolean completed;
 
         public Task(int id, String title, String description, LocalDate date, boolean completed) {
