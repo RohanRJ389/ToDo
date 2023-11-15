@@ -29,6 +29,46 @@ public class TaskApp extends Application {
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "helloworld";
 
+    private boolean databaseExists() {
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/?serverTimezone=UTC", DB_USER, DB_PASSWORD)) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            ResultSet resultSet = metaData.getCatalogs();
+            while (resultSet.next()) {
+                String databaseName = resultSet.getString("TABLE_CAT");
+                if (databaseName.equalsIgnoreCase("to_do_list_db")) {
+                    return true; // Database exists
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Database does not exist
+    }
+
+    private void createDatabase() {
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/?serverTimezone=UTC", DB_USER, DB_PASSWORD)) {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("CREATE DATABASE IF NOT EXISTS to_do_list_db");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createTaskDetailsTable() {
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            Statement statement = connection.createStatement();
+            String createTableQuery = "CREATE TABLE IF NOT EXISTS task_details (" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY," +
+                    "title VARCHAR(255) NOT NULL," +
+                    "description TEXT," +
+                    "date DATE," +
+                    "completed TINYINT(1)" +
+                    ")";
+            statement.executeUpdate(createTableQuery);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     private final ObservableList<Task> taskList = FXCollections.observableArrayList();
     private final ListView<Task> listView = new ListView<>();
 //    private final TextArea taskDetailsTextArea = new TextArea();
@@ -41,6 +81,7 @@ public class TaskApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("To-Do List App");
+
 
         listView.setItems(taskList);
         listView.setCellFactory(param -> new ListCell<>() {
@@ -174,7 +215,18 @@ public class TaskApp extends Application {
         addTaskStage.showAndWait();
     }
 
+
     private void addTask(String title, String description, LocalDate date) {
+        if (title.trim().isEmpty()) {
+            showAlert("Title cannot be empty");
+            return;
+        }
+
+        if (date.isBefore(LocalDate.now())) {
+            showAlert("Please select a date that is not behind the current date");
+            return;
+        }
+
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             String query = "INSERT INTO task_details (title, description, date, completed) VALUES (?, ?, ?, false)";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -188,6 +240,15 @@ public class TaskApp extends Application {
             e.printStackTrace();
         }
     }
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+
     private void updateCheckBoxStyle(CheckBox checkBox, boolean completed) {
         if (completed) {
             checkBox.getStyleClass().add("checkbox-checked");
@@ -208,6 +269,7 @@ public class TaskApp extends Application {
             e.printStackTrace();
         }
     }
+
 
     private void toggleTaskCompletion(Task task) {
         task.setCompleted(!task.isCompleted());
@@ -251,7 +313,7 @@ public class TaskApp extends Application {
     }
     private void promptDeleteConfirmation(Task task) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation Dialog");
+        alert.setTitle("Task Deletion");
         alert.setHeaderText(null);
         alert.setContentText("Are you sure you want to delete this task?");
 
