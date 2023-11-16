@@ -58,10 +58,10 @@
     -fx-background-color: #3498db; /* Blue color for the button */
     -fx-text-fill: #ffffff; /* White text color */
     -fx-font-size: 14pt;
-    -fx-padding: 10px 20px; /* Padding around button text */
+  /*  -fx-padding: 10px 20px;  Padding around button text */
     -fx-min-width: 40px; /* Minimum width for the button */
     -fx-min-height: 40px; /* Minimum height for the button */
-    -fx-border-radius: 40; /* Round the corners */
+    -fx-border-radius: 50%; /* Round the corners */
     -fx-background-radius: 40; /* Round the corners */
     -fx-border-color: transparent; /* Hide button border */
 }

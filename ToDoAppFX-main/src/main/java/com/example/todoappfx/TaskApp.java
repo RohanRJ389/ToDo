@@ -120,15 +120,23 @@ public class TaskApp extends Application {
 
                     if (item.isCompleted()) {
                         titleLabel.setStyle("-fx-text-fill: grey;");
-                        titleDateBox.setStyle("-fx-text-fill: grey;"); // Light grey for completed tasks
-                        descriptionLabel.setStyle("-fx-text-fill: grey;"); // Light grey for completed tasks
+                        dateLabel.setStyle("-fx-text-fill: grey;");
+                        descriptionLabel.setStyle("-fx-text-fill: grey;");
+                    } else if (item.getDate().isBefore(LocalDate.now())) {
+                        titleLabel.setStyle("-fx-text-fill: red;");
+                        dateLabel.setStyle("-fx-text-fill: red;");
+                        descriptionLabel.setStyle("-fx-text-fill: red;");
                     } else {
-                        titleDateBox.setStyle("-fx-text-fill: black;"); // Set default color for non-completed tasks
-                        descriptionLabel.setStyle("-fx-text-fill: black;"); // Set default color for non-completed tasks
+                        titleLabel.setStyle("-fx-text-fill: black;");
+                        dateLabel.setStyle("-fx-text-fill: black;");
+                        descriptionLabel.setStyle("-fx-text-fill: black;");
                     }
 
                     HBox.setHgrow(taskDetailsVBox, Priority.ALWAYS);
                     HBox.setHgrow(deleteButton, Priority.NEVER);
+
+                    // Remaining code...
+
 
                     ImageView trashIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/example/todoappfx/trash-can-icon.png"))));
                     trashIcon.setFitWidth(16);
